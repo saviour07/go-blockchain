@@ -6,20 +6,16 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/saviour07/go-blockchain/identity"
 )
 
 // Block structure
 type Block struct {
 	Index     int
 	Timestamp string
-	BPM       int
+	ID        id.Identity
 	Hash      string
 	PrevHash  string
-}
-
-// Message structure
-type Message struct {
-	BPM int
 }
 
 var blockchain []Block
@@ -37,7 +33,8 @@ func Start() {
 // genesisBlock returns the first block in the blockchain
 func genesisBlock() Block {
 	t := time.Now()
-	genesisBlock := Block{0, t.String(), 0, "", ""}
+	id := id.Identity{Name: "Eve"}
+	genesisBlock := Block{Index: 0, Timestamp: t.String(), ID: id, Hash: "", PrevHash: ""}
 	spew.Dump(genesisBlock)
 	return genesisBlock
 }
@@ -75,7 +72,7 @@ func ValidBlock(newBlock Block) bool {
 }
 
 // NewBlock creates a new block to add to the blockchain
-func NewBlock(BPM int) (Block, error) {
+func NewBlock(id id.Identity) (Block, error) {
 
 	oldBlock := blockchain[len(blockchain)-1]
 	var newBlock Block
@@ -84,7 +81,7 @@ func NewBlock(BPM int) (Block, error) {
 
 	newBlock.Index = oldBlock.Index + 1
 	newBlock.Timestamp = t.String()
-	newBlock.BPM = BPM
+	newBlock.ID = id
 	newBlock.PrevHash = oldBlock.Hash
 	newBlock.Hash = calculateHash(newBlock)
 
@@ -92,7 +89,8 @@ func NewBlock(BPM int) (Block, error) {
 }
 
 func calculateHash(block Block) string {
-	record := string(block.Index) + block.Timestamp + string(block.BPM) + block.PrevHash
+
+	record := string(block.Index) + block.Timestamp + block.ID.String() + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)

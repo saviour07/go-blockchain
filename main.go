@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/saviour07/go-blockchain/blockchain"
+	id "github.com/saviour07/go-blockchain/identity"
 )
 
 func main() {
@@ -61,7 +62,7 @@ func handleGet(writer http.ResponseWriter, request *http.Request) {
 }
 
 func handlePost(writer http.ResponseWriter, request *http.Request) {
-	var msg blockchain.Message
+	var msg id.Identity
 
 	decoder := json.NewDecoder(request.Body)
 	if err := decoder.Decode(&msg); err != nil {
@@ -70,7 +71,7 @@ func handlePost(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer request.Body.Close()
 
-	newBlock, err := blockchain.NewBlock(msg.BPM)
+	newBlock, err := blockchain.NewBlock(msg)
 	if err != nil {
 		respondWithJSON(writer, request, http.StatusInternalServerError, msg)
 		return
